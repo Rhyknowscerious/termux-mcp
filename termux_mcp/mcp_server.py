@@ -138,7 +138,7 @@ def handle_initialize(params: dict) -> dict:
             "tools": {}
         },
         "serverInfo": {
-            "name": "termux-mcp2",
+            "name": "termux-mcp",
             "version": "2.0.0"
         }
     }

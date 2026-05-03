@@ -476,7 +476,7 @@ class TestMcpProtocol:
 
     def test_protocol_version_format(self):
         """Test protocol version format."""
-        assert MCP_VERSION == "2025-11-25"
+        assert MCP_VERSION == "2025-05-03"
 
     def test_tools_call_response_format(self, mock_execute_command):
         """Test tools/call response has correct format."""

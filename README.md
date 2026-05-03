@@ -101,5 +101,5 @@ All settings can be overridden via environment variables:
 
 **Port Config:**
 - **666** - Legacy termux-mcp (PRE-DECOMMISSION, deployable but not deployed)
-- **8000** - termux-mcp2 (NEW active replacement) - set `TERMUX_MCP_PORT=8000`
+- **8000** - termux-mcp (active) - set `TERMUX_MCP_PORT=8000`
 
