@@ -1,2 +1,2 @@
-__version__ = "1.0.0"
-__author__ = "Parixit Sutariya"
+__version__ = "2.0.0"
+__author__ = "Parixit Sutariya,ry4n"

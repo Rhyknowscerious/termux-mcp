@@ -50,7 +50,7 @@ class TestInitialize:
         
         assert "serverInfo" in result
         assert result["serverInfo"]["name"] == "termux-mcp"
-        assert result["serverInfo"]["version"] == "1.0.0"
+        assert result["serverInfo"]["version"] == "2.0.0"
 
     def test_initialize_accepts_params(self):
         """Test that initialize accepts parameters without error."""
