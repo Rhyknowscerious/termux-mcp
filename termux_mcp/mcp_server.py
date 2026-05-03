@@ -1,5 +1,6 @@
 import json
 import logging
+import shlex
 from typing import Any
 
 from .shell import execute_command, get_current_dir
@@ -20,6 +21,11 @@ TOOLS = [
                 "cmd": {
                     "type": "string",
                     "description": "The shell command to execute"
+                },
+                "timeout": {
+                    "type": "integer",
+                    "description": "Timeout in seconds (default: 30)",
+                    "default": 30
                 }
             },
             "required": ["cmd"]
@@ -150,89 +156,96 @@ def handle_tools_call(params: dict) -> dict:
     tool_name = params.get("name")
     arguments = params.get("arguments", {})
 
-    if tool_name == "run_command":
-        cmd = arguments.get("cmd", "")
-        if not cmd:
+    try:
+        if tool_name == "run_command":
+            cmd = arguments.get("cmd", "")
+            if not cmd:
+                return {
+                    "content": [{"type": "text", "text": "Error: No command provided"}],
+                    "isError": True
+                }
+            exit_code, output = execute_command(cmd)
             return {
-                "content": [{"type": "text", "text": "Error: No command provided"}],
+                "content": [{"type": "text", "text": output}],
+                "isError": exit_code != 0
+            }
+
+        elif tool_name == "get_battery":
+            exit_code, output = execute_command("termux-battery-status")
+            return {
+                "content": [{"type": "text", "text": output}],
+                "isError": exit_code != 0
+            }
+
+        elif tool_name == "get_location":
+            provider = arguments.get("provider", "gps")
+            exit_code, output = execute_command(f"termux-location -p {shlex.quote(provider)}")
+            return {
+                "content": [{"type": "text", "text": output}],
+                "isError": exit_code != 0
+            }
+
+        elif tool_name == "list_sms":
+            limit = arguments.get("limit", 10)
+            exit_code, output = execute_command(f"termux-sms-list -l {shlex.quote(str(limit))}")
+            return {
+                "content": [{"type": "text", "text": output}],
+                "isError": exit_code != 0
+            }
+
+        elif tool_name == "get_clipboard":
+            exit_code, output = execute_command("termux-clipboard-get")
+            return {
+                "content": [{"type": "text", "text": output}],
+                "isError": exit_code != 0
+            }
+
+        elif tool_name == "set_clipboard":
+            text = arguments.get("text", "")
+            exit_code, output = execute_command(f"termux-clipboard-set {shlex.quote(text)}")
+            return {
+                "content": [{"type": "text", "text": output or "Clipboard set successfully"}],
+                "isError": exit_code != 0
+            }
+
+        elif tool_name == "show_toast":
+            message = arguments.get("message", "")
+            exit_code, output = execute_command(f"termux-toast {shlex.quote(message)}")
+            return {
+                "content": [{"type": "text", "text": output or "Toast shown"}],
+                "isError": exit_code != 0
+            }
+
+        elif tool_name == "get_wifi_info":
+            exit_code, output = execute_command("termux-wifi-connectioninfo")
+            return {
+                "content": [{"type": "text", "text": output}],
+                "isError": exit_code != 0
+            }
+
+        elif tool_name == "list_contacts":
+            exit_code, output = execute_command("termux-contact-list")
+            return {
+                "content": [{"type": "text", "text": output}],
+                "isError": exit_code != 0
+            }
+
+        elif tool_name == "get_device_info":
+            exit_code, output = execute_command("termux-info")
+            return {
+                "content": [{"type": "text", "text": output}],
+                "isError": exit_code != 0
+            }
+
+        else:
+            return {
+                "content": [{"type": "text", "text": f"Unknown tool: {tool_name}"}],
                 "isError": True
             }
-        exit_code, output = execute_command(cmd)
+    except Exception as e:
+        logger.error(f"Error handling tool {tool_name}: {e}")
         return {
-            "content": [{"type": "text", "text": output}],
-            "isError": exit_code != 0
-        }
-
-    elif tool_name == "get_battery":
-        exit_code, output = execute_command("termux-battery-status")
-        return {
-            "content": [{"type": "text", "text": output}],
-            "isError": exit_code != 0
-        }
-
-    elif tool_name == "get_location":
-        provider = arguments.get("provider", "gps")
-        exit_code, output = execute_command(f"termux-location -p {provider}")
-        return {
-            "content": [{"type": "text", "text": output}],
-            "isError": exit_code != 0
-        }
-
-    elif tool_name == "list_sms":
-        limit = arguments.get("limit", 10)
-        exit_code, output = execute_command(f"termux-sms-list -l {limit}")
-        return {
-            "content": [{"type": "text", "text": output}],
-            "isError": exit_code != 0
-        }
-
-    elif tool_name == "get_clipboard":
-        exit_code, output = execute_command("termux-clipboard-get")
-        return {
-            "content": [{"type": "text", "text": output}],
-            "isError": exit_code != 0
-        }
-
-    elif tool_name == "set_clipboard":
-        text = arguments.get("text", "")
-        exit_code, output = execute_command(f"termux-clipboard-set '{text}'")
-        return {
-            "content": [{"type": "text", "text": output or "Clipboard set successfully"}],
-            "isError": exit_code != 0
-        }
-
-    elif tool_name == "show_toast":
-        message = arguments.get("message", "")
-        exit_code, output = execute_command(f"termux-toast '{message}'")
-        return {
-            "content": [{"type": "text", "text": output or "Toast shown"}],
-            "isError": exit_code != 0
-        }
-
-    elif tool_name == "get_wifi_info":
-        exit_code, output = execute_command("termux-wifi-connectioninfo")
-        return {
-            "content": [{"type": "text", "text": output}],
-            "isError": exit_code != 0
-        }
-
-    elif tool_name == "list_contacts":
-        exit_code, output = execute_command("termux-contact-list")
-        return {
-            "content": [{"type": "text", "text": output}],
-            "isError": exit_code != 0
-        }
-
-    elif tool_name == "get_device_info":
-        exit_code, output = execute_command("termux-info")
-        return {
-            "content": [{"type": "text", "text": output}],
-            "isError": exit_code != 0
-        }
-
-    else:
-        return {
-            "content": [{"type": "text", "text": f"Unknown tool: {tool_name}"}],
+            "content": [{"type": "text", "text": f"Error: {str(e)}"}],
             "isError": True
         }
 

@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 
 _current_dir: str = os.getcwd()
+_DEFAULT_TIMEOUT: int = 300  # 5 minutes default timeout
 
 
 def get_current_dir() -> str:
@@ -78,7 +79,7 @@ def _spawn_auto_input(process: subprocess.Popen) -> None:
 
 
 
-def execute_command(cmd: str) -> tuple[int, str]:
+def execute_command(cmd: str, timeout: int = _DEFAULT_TIMEOUT) -> tuple[int, str]:
     """Execute command and return (exit_code, output_string) for reuse in MCP and REST."""
     cmd = cmd.strip()
 
@@ -101,10 +102,17 @@ def execute_command(cmd: str) -> tuple[int, str]:
 
     _spawn_auto_input(process)
 
-    for line in process.stdout:
-        output_lines.append(line)
+    try:
+        # Read with timeout
+        for line in process.stdout:
+            output_lines.append(line)
 
-    process.wait()
+        process.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
+        output_lines.append(f"\n❌ Command timed out after {timeout} seconds")
+        return (124, ''.join(output_lines))  # 124 is standard timeout exit code
 
     output = ''.join(output_lines)
     if process.returncode != 0:
@@ -115,7 +123,7 @@ def execute_command(cmd: str) -> tuple[int, str]:
     return (process.returncode, output)
 
 
-def execute_streaming(handler: "BaseHTTPRequestHandler", raw_cmd: str) -> None:
+def execute_streaming(handler: "BaseHTTPRequestHandler", raw_cmd: str, timeout: int = _DEFAULT_TIMEOUT) -> None:
     raw_cmd = raw_cmd.strip()
 
     if raw_cmd.startswith("cd"):
@@ -145,14 +153,21 @@ def execute_streaming(handler: "BaseHTTPRequestHandler", raw_cmd: str) -> None:
 
     _spawn_auto_input(process)
 
-    for line in process.stdout:
-        _send_chunk(handler, line)
+    try:
+        for line in process.stdout:
+            _send_chunk(handler, line)
 
-    process.wait()
+        process.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
+        _send_chunk(handler, f"\n❌ Command timed out after {timeout} seconds\n")
+    except Exception as e:
+        _send_chunk(handler, f"\n❌ Error: {str(e)}\n")
 
-    if process.returncode != 0:
+    if process.returncode != 0 and process.returncode != 124:
         _send_chunk(handler, f"\n❌ Exit code: {process.returncode}\n")
-    else:
+    elif process.returncode == 0:
         _send_chunk(handler, "\n✅ Done\n")
 
     _finalize_chunks(handler)

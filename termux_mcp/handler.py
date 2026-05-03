@@ -60,11 +60,12 @@ class MCPHandler(BaseHTTPRequestHandler):
 
         if path == "/run":
             cmd = data.get("cmd", "").strip()
+            timeout = data.get("timeout", 30)
             if not cmd:
                 self._json_response(400, {"error": "Missing 'cmd'"})
                 return
-            self._log(f"Executing: {cmd}")
-            execute_streaming(self, cmd)
+            self._log(f"Executing: {cmd} (timeout: {timeout}s)")
+            execute_streaming(self, cmd, timeout=timeout)
             return
 
         if path == "/mcp":
