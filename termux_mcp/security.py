@@ -16,14 +16,14 @@ DANGEROUS_PATTERNS = [
     r'mkfs\.',                               # mkfs.ext4, mkfs.ntfs etc.
     r'format\s+',                            # format commands
 
-    r':\(\)\s*\{\s*:\|\s*&\s*\};:',          # Classic fork bomb
+    r':\(\)\s*\{[^}]*\}\s*;\s*:*',      # Classic fork bomb
 
-    r'>\s*/dev/',                            # Redirect to /dev/*
-    r'echo\s+.*>\s*/dev/',
+    r'(?:^|\s)>\s*/dev/',                  # Redirect to /dev/* (not >>)
+    r'echo\s+.*(?:^|\s)>\s*/dev/',
 
-    r'chmod\s+-R\s+777',                     # chmod -R 777 /
-    r'chmod\s+-R\s+000',
-    r'chown\s+-R\s+root',
+    r'chmod\s+-r\s+777',                     # chmod -R 777 / (use -r to match lowercase)
+    r'chmod\s+-r\s+000',
+    r'chown\s+-r\s+root',
 
     r'pkg\s+remove\s+termux.*',              # Removing core Termux packages
     r'apt\s+purge\s+-y\s+.*termux',
@@ -37,7 +37,7 @@ WARNING_PATTERNS = [
     r'rm\s+-rf',                             # Any rm -rf (even on folders)
     r'rm\s+-r',                              # Recursive remove
     r'>>\s*/dev/null',                       # Overwriting logs aggressively
-    r'chmod\s+-R',                           # Recursive chmod
+    r'chmod\s+-r',                           # Recursive chmod (use -r to match lowercase)
     r'find\s+.*-delete',                     # Find + delete
     r'> /',                                  # Redirect to root
 ]
