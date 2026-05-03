@@ -27,7 +27,7 @@ def run() -> None:
     logger.info("Press Ctrl+C to stop.\n")
     
     try:
-        # Run with HTTP transport (streamable-http is the default modern transport)
+        # Run with streamable-http transport (modern FastMCP default)
         mcp.run(
             transport="streamable-http",
             host=HOST,
