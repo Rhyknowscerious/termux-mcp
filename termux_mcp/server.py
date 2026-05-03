@@ -10,6 +10,7 @@ import sys
 
 from .config import HOST, PORT
 from .mcp_server_fastmcp import mcp
+from .shell import get_current_dir
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,13 +23,13 @@ logger = logging.getLogger(__name__)
 def run() -> None:
     """Run the FastMCP server with HTTP transport."""
     logger.info("🚀 Starting TermuxMCP (FastMCP) on %s:%d", HOST, PORT)
-    logger.info("📂 Working dir: %s", mcp.settings.get("working_dir", "unknown"))
+    logger.info("📂 Working dir: %s", get_current_dir())
     logger.info("Press Ctrl+C to stop.\n")
     
     try:
-        # Run with HTTP transport
+        # Run with HTTP transport (streamable-http is the default modern transport)
         mcp.run(
-            transport="http",
+            transport="streamable-http",
             host=HOST,
             port=PORT,
             show_banner=True
