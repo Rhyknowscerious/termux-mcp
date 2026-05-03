@@ -1,11 +1,15 @@
+"""
+Termux MCP Server - FastMCP Entry Point
+
+This module provides the run() function that starts the FastMCP server
+with HTTP transport on the configured host and port.
+"""
+
 import logging
 import sys
-from http.server import HTTPServer
 
 from .config import HOST, PORT
-from .handler import MCPHandler
-from .network import kill_port
-from .shell import get_current_dir
+from .mcp_server_fastmcp import mcp
 
 logging.basicConfig(
     level=logging.INFO,
@@ -16,18 +20,22 @@ logger = logging.getLogger(__name__)
 
 
 def run() -> None:
-    logger.info("Freeing port %d if occupied…", PORT)
-    kill_port(PORT)
-
-    server = HTTPServer((HOST, PORT), MCPHandler)
-
-    logger.info("🚀 TermuxMCP running on http://localhost:%d", PORT)
-    logger.info("📂 Working dir: %s", get_current_dir())
+    """Run the FastMCP server with HTTP transport."""
+    logger.info("🚀 Starting TermuxMCP (FastMCP) on %s:%d", HOST, PORT)
+    logger.info("📂 Working dir: %s", mcp.settings.get("working_dir", "unknown"))
     logger.info("Press Ctrl+C to stop.\n")
-
+    
     try:
-        server.serve_forever()
+        # Run with HTTP transport
+        mcp.run(
+            transport="http",
+            host=HOST,
+            port=PORT,
+            show_banner=True
+        )
     except KeyboardInterrupt:
-        logger.info("Shutting down…")
-        server.server_close()
+        logger.info("Shutting down...")
         sys.exit(0)
+    except Exception as e:
+        logger.error("Server error: %s", e)
+        sys.exit(1)
