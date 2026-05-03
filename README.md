@@ -53,15 +53,15 @@ termux-mcp
 
 ```bash
 # Health check
-curl http://localhost:8080/ping
+curl http://localhost:8000/ping
 
 # Run a command
-curl -X POST http://localhost:8080/run \
+curl -X POST http://localhost:8000/run \
      -H "Content-Type: application/json" \
      -d '{"cmd": "ls ~"}'
 
 # Install a package (streaming output)
-curl -X POST http://localhost:8080/run \
+curl -X POST http://localhost:8000/run \
      -H "Content-Type: application/json" \
      -d '{"cmd": "pkg install python"}'
 ```
@@ -92,9 +92,14 @@ Read it line by line — each line is real terminal output **as it happens**.
 
 All settings can be overridden via environment variables:
 
-| Variable          | Default     | Description           |
-|-------------------|-------------|-----------------------|
-| `TERMUX_MCP_PORT` | `8080`      | HTTP listen port      |
-| `TERMUX_MCP_HOST` | `0.0.0.0`   | Bind address          |
-| `HOME`            | Termux home | Working directory base|
+| Variable              | Default     | Description                   |
+|-----------------------|-------------|--------------------------------|
+| `TERMUX_MCP_PORT`     | `666`       | HTTP listen port (8000 = NEW)  |
+| `TERMUX_MCP_HOST`     | `0.0.0.0`   | Bind address                   |
+| `TERMUX_MCP_LEGACY`   | `false`     | Legacy mode (pre-decommission) |
+| `HOME`                | Termux home | Working directory base        |
+
+**Port Config:**
+- **666** - Legacy termux-mcp (PRE-DECOMMISSION, deployable but not deployed)
+- **8000** - termux-mcp2 (NEW active replacement) - set `TERMUX_MCP_PORT=8000`
 

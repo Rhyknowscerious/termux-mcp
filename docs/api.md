@@ -6,7 +6,8 @@
 ## Base URL
 
 ```
-http://<device-ip>:8080
+http://<device-ip>:8000  (termux-mcp2 - ACTIVE)
+http://<device-ip>:666   (termux-mcp - LEGACY/PRE-DECOMMISSION)
 ```
 ---
 

@@ -8,7 +8,7 @@ from .shell import execute_command, get_current_dir
 logger = logging.getLogger(__name__)
 
 # MCP protocol version
-MCP_VERSION = "2025-11-25"
+MCP_VERSION = "2025-05-03"
 
 # Tool definitions mapping to termux commands
 TOOLS = [
@@ -138,8 +138,8 @@ def handle_initialize(params: dict) -> dict:
             "tools": {}
         },
         "serverInfo": {
-            "name": "termux-mcp",
-            "version": "1.0.0"
+            "name": "termux-mcp2",
+            "version": "2.0.0"
         }
     }
 
