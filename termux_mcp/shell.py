@@ -78,6 +78,43 @@ def _spawn_auto_input(process: subprocess.Popen) -> None:
 
 
 
+def execute_command(cmd: str) -> tuple[int, str]:
+    """Execute command and return (exit_code, output_string) for reuse in MCP and REST."""
+    cmd = cmd.strip()
+
+    if cmd.startswith("cd"):
+        ok, msg = handle_cd(cmd.split(maxsplit=1))
+        return (0 if ok else 1, msg)
+
+    cmd = preprocess(cmd)
+    output_lines = []
+
+    process = subprocess.Popen(
+        f"export PAGER=cat; {cmd}",
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        stdin=subprocess.PIPE,
+        text=True,
+        cwd=_current_dir,
+    )
+
+    _spawn_auto_input(process)
+
+    for line in process.stdout:
+        output_lines.append(line)
+
+    process.wait()
+
+    output = ''.join(output_lines)
+    if process.returncode != 0:
+        output += f"\n❌ Exit code: {process.returncode}"
+    else:
+        output += "\n✅ Done"
+
+    return (process.returncode, output)
+
+
 def execute_streaming(handler: "BaseHTTPRequestHandler", raw_cmd: str) -> None:
     raw_cmd = raw_cmd.strip()
 

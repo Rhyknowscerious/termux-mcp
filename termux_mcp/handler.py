@@ -3,6 +3,7 @@ import logging
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse
 
+from .mcp_server import handle_mcp_request
 from .shell import execute_streaming, get_current_dir
 
 logger = logging.getLogger(__name__)
@@ -64,6 +65,17 @@ class MCPHandler(BaseHTTPRequestHandler):
                 return
             self._log(f"Executing: {cmd}")
             execute_streaming(self, cmd)
+            return
+
+        if path == "/mcp":
+            self._log(f"MCP method: {data.get('method')}")
+            response = handle_mcp_request(data)
+            if response is None:
+                # Notification - no response needed, but send 204
+                self.send_response(204)
+                self.end_headers()
+                return
+            self._json_response(200, response)
             return
 
         self._json_response(404, {"error": "Not found"})
