@@ -120,10 +120,10 @@ class TestFastMcpToolExecution:
         
         # Create a mock context
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
-        mock_ctx.warning = MagicMock()
+        mock_ctx.info = AsyncMock()
+        mock_ctx.warning = AsyncMock()
         
-        result = run_command(mock_ctx, cmd="echo test")
+        result = await run_command(mock_ctx, cmd="echo test")
         
         assert "test output" in result
         mock_execute_command.assert_called_once_with("echo test", timeout=30)
@@ -136,9 +136,9 @@ class TestFastMcpToolExecution:
         mock_execute_command.return_value = (0, "output")
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
+        mock_ctx.info = AsyncMock()
         
-        result = run_command(mock_ctx, cmd="ls", timeout=60)
+        result = await run_command(mock_ctx, cmd="ls", timeout=60)
         
         assert "output" in result
         mock_execute_command.assert_called_once_with("ls", timeout=60)
@@ -149,9 +149,9 @@ class TestFastMcpToolExecution:
         from termux_mcp.mcp_server_fastmcp import run_command
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
+        mock_ctx.info = AsyncMock()
         
-        result = run_command(mock_ctx, cmd="")
+        result = await run_command(mock_ctx, cmd="")
         
         assert "Error" in result or "error" in result
 
@@ -163,10 +163,10 @@ class TestFastMcpToolExecution:
         mock_execute_command.return_value = (0, '{"level": 100, "status": "CHARGING"}')
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
-        mock_ctx.error = MagicMock()
+        mock_ctx.info = AsyncMock()
+        mock_ctx.error = AsyncMock()
         
-        result = get_battery(mock_ctx)
+        result = await get_battery(mock_ctx)
         
         mock_execute_command.assert_called_once_with("termux-battery-status")
         assert "level" in result
@@ -179,10 +179,10 @@ class TestFastMcpToolExecution:
         mock_execute_command.return_value = (0, '{"latitude": 0.0, "longitude": 0.0}')
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
-        mock_ctx.error = MagicMock()
+        mock_ctx.info = AsyncMock()
+        mock_ctx.error = AsyncMock()
         
-        result = get_location(mock_ctx)
+        result = await get_location(mock_ctx)
         
         mock_execute_command.assert_called_once_with("termux-location -p gps")
         assert "latitude" in result
@@ -195,10 +195,10 @@ class TestFastMcpToolExecution:
         mock_execute_command.return_value = (0, '{"latitude": 0.0, "longitude": 0.0}')
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
-        mock_ctx.error = MagicMock()
+        mock_ctx.info = AsyncMock()
+        mock_ctx.error = AsyncMock()
         
-        result = get_location(mock_ctx, provider="network")
+        result = await get_location(mock_ctx, provider="network")
         
         mock_execute_command.assert_called_once_with("termux-location -p network")
 
@@ -210,10 +210,10 @@ class TestFastMcpToolExecution:
         mock_execute_command.return_value = (0, "SMS message 1\nSMS message 2")
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
-        mock_ctx.error = MagicMock()
+        mock_ctx.info = AsyncMock()
+        mock_ctx.error = AsyncMock()
         
-        result = list_sms(mock_ctx, limit=5)
+        result = await list_sms(mock_ctx, limit=5)
         
         mock_execute_command.assert_called_once_with("termux-sms-list -l 5")
 
@@ -225,10 +225,10 @@ class TestFastMcpToolExecution:
         mock_execute_command.return_value = (0, "clipboard content")
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
-        mock_ctx.error = MagicMock()
+        mock_ctx.info = AsyncMock()
+        mock_ctx.error = AsyncMock()
         
-        result = get_clipboard(mock_ctx)
+        result = await get_clipboard(mock_ctx)
         
         mock_execute_command.assert_called_once_with("termux-clipboard-get")
         assert "clipboard content" in result
@@ -241,10 +241,10 @@ class TestFastMcpToolExecution:
         mock_execute_command.return_value = (0, "")
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
-        mock_ctx.error = MagicMock()
+        mock_ctx.info = AsyncMock()
+        mock_ctx.error = AsyncMock()
         
-        result = set_clipboard(mock_ctx, text="test text")
+        result = await set_clipboard(mock_ctx, text="test text")
         
         mock_execute_command.assert_called_once()
         assert "successfully" in result.lower() or result == ""
@@ -257,9 +257,9 @@ class TestFastMcpToolExecution:
         mock_execute_command.return_value = (0, "")
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
+        mock_ctx.info = AsyncMock()
         
-        result = show_toast(mock_ctx, message="Hello")
+        result = await show_toast(mock_ctx, message="Hello")
         
         mock_execute_command.assert_called_once()
         # Check that command starts with termux-toast
@@ -274,10 +274,10 @@ class TestFastMcpToolExecution:
         mock_execute_command.return_value = (0, '{"ssid": "TestNetwork"}')
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
-        mock_ctx.error = MagicMock()
+        mock_ctx.info = AsyncMock()
+        mock_ctx.error = AsyncMock()
         
-        result = get_wifi_info(mock_ctx)
+        result = await get_wifi_info(mock_ctx)
         
         mock_execute_command.assert_called_once_with("termux-wifi-connectioninfo")
         assert "ssid" in result
@@ -290,10 +290,10 @@ class TestFastMcpToolExecution:
         mock_execute_command.return_value = (0, "Contact 1\nContact 2")
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
-        mock_ctx.error = MagicMock()
+        mock_ctx.info = AsyncMock()
+        mock_ctx.error = AsyncMock()
         
-        result = list_contacts(mock_ctx)
+        result = await list_contacts(mock_ctx)
         
         mock_execute_command.assert_called_once_with("termux-contact-list")
 
@@ -305,10 +305,10 @@ class TestFastMcpToolExecution:
         mock_execute_command.return_value = (0, '{"model": "TestDevice"}')
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
-        mock_ctx.error = MagicMock()
+        mock_ctx.info = AsyncMock()
+        mock_ctx.error = AsyncMock()
         
-        result = get_device_info(mock_ctx)
+        result = await get_device_info(mock_ctx)
         
         mock_execute_command.assert_called_once_with("termux-info")
         assert "model" in result
@@ -325,10 +325,10 @@ class TestFastMcpErrorHandling:
         mock_execute_command.return_value = (1, "Error output")
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
-        mock_ctx.warning = MagicMock()
+        mock_ctx.info = AsyncMock()
+        mock_ctx.warning = AsyncMock()
         
-        result = run_command(mock_ctx, cmd="failing_cmd")
+        result = await run_command(mock_ctx, cmd="failing_cmd")
         
         # The output should contain the error
         assert "Error output" in result
@@ -343,11 +343,11 @@ class TestFastMcpErrorHandling:
         mock_execute_command.side_effect = RuntimeError("Command failed")
         
         mock_ctx = MagicMock()
-        mock_ctx.info = MagicMock()
+        mock_ctx.info = AsyncMock()
         
         # The function should raise the exception or handle it
         with pytest.raises(RuntimeError):
-            run_command(mock_ctx, cmd="test")
+            await run_command(mock_ctx, cmd="test")
 
 
 class TestMCPProtocolCompliance:

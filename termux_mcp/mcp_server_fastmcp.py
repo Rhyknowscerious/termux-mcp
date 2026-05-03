@@ -28,7 +28,7 @@ mcp = FastMCP(
 
 
 @mcp.tool()
-def run_command(
+async def run_command(
     ctx: Context,
     cmd: Annotated[str, Field(description="The shell command to execute")],
     timeout: Annotated[int, Field(description="Timeout in seconds (default: 30)", default=30)] = 30
@@ -50,17 +50,17 @@ def run_command(
     if not cmd:
         return "Error: No command provided"
     
-    ctx.info(f"Executing command: {cmd}")
+    await ctx.info(f"Executing command: {cmd}")
     exit_code, output = execute_command(cmd, timeout=timeout)
     
     if exit_code != 0:
-        ctx.warning(f"Command exited with code {exit_code}")
+        await ctx.warning(f"Command exited with code {exit_code}")
     
     return output
 
 
 @mcp.tool()
-def get_battery(ctx: Context) -> str:
+async def get_battery(ctx: Context) -> str:
     """
     Get battery status using termux-battery-status.
     
@@ -70,17 +70,17 @@ def get_battery(ctx: Context) -> str:
     Returns:
         Battery status as JSON text
     """
-    ctx.info("Getting battery status")
+    await ctx.info("Getting battery status")
     exit_code, output = execute_command("termux-battery-status")
     
     if exit_code != 0:
-        ctx.error("Failed to get battery status")
+        await ctx.error("Failed to get battery status")
     
     return output
 
 
 @mcp.tool()
-def get_location(
+async def get_location(
     ctx: Context,
     provider: Annotated[str, Field(description="Location provider: gps, network, or passive", default="gps")] = "gps"
 ) -> str:
@@ -96,17 +96,17 @@ def get_location(
     Returns:
         Location data as JSON text
     """
-    ctx.info(f"Getting location using provider: {provider}")
+    await ctx.info(f"Getting location using provider: {provider}")
     exit_code, output = execute_command(f"termux-location -p {shlex.quote(provider)}")
     
     if exit_code != 0:
-        ctx.error("Failed to get location")
+        await ctx.error("Failed to get location")
     
     return output
 
 
 @mcp.tool()
-def list_sms(
+async def list_sms(
     ctx: Context,
     limit: Annotated[int, Field(description="Maximum number of messages to return", default=10)] = 10
 ) -> str:
@@ -122,17 +122,17 @@ def list_sms(
     Returns:
         SMS messages as JSON text
     """
-    ctx.info(f"Listing SMS messages (limit: {limit})")
+    await ctx.info(f"Listing SMS messages (limit: {limit})")
     exit_code, output = execute_command(f"termux-sms-list -l {shlex.quote(str(limit))}")
     
     if exit_code != 0:
-        ctx.error("Failed to list SMS messages")
+        await ctx.error("Failed to list SMS messages")
     
     return output
 
 
 @mcp.tool()
-def get_clipboard(ctx: Context) -> str:
+async def get_clipboard(ctx: Context) -> str:
     """
     Get clipboard content using termux-clipboard-get.
     
@@ -141,17 +141,17 @@ def get_clipboard(ctx: Context) -> str:
     Returns:
         Clipboard content as text
     """
-    ctx.info("Getting clipboard content")
+    await ctx.info("Getting clipboard content")
     exit_code, output = execute_command("termux-clipboard-get")
     
     if exit_code != 0:
-        ctx.error("Failed to get clipboard content")
+        await ctx.error("Failed to get clipboard content")
     
     return output
 
 
 @mcp.tool()
-def set_clipboard(
+async def set_clipboard(
     ctx: Context,
     text: Annotated[str, Field(description="Text to copy to clipboard")]
 ) -> str:
@@ -166,18 +166,18 @@ def set_clipboard(
     Returns:
         Success message or error
     """
-    ctx.info("Setting clipboard content")
+    await ctx.info("Setting clipboard content")
     exit_code, output = execute_command(f"termux-clipboard-set {shlex.quote(text)}")
     
     if exit_code != 0:
-        ctx.error("Failed to set clipboard content")
+        await ctx.error("Failed to set clipboard content")
         return output
     
     return output or "Clipboard set successfully"
 
 
 @mcp.tool()
-def show_toast(
+async def show_toast(
     ctx: Context,
     message: Annotated[str, Field(description="Message to display in toast")]
 ) -> str:
@@ -192,18 +192,18 @@ def show_toast(
     Returns:
         Success message or error
     """
-    ctx.info(f"Showing toast: {message[:50]}...")
+    await ctx.info(f"Showing toast: {message[:50]}...")
     exit_code, output = execute_command(f"termux-toast {shlex.quote(message)}")
     
     if exit_code != 0:
-        ctx.error("Failed to show toast")
+        await ctx.error("Failed to show toast")
         return output
     
     return output or "Toast shown"
 
 
 @mcp.tool()
-def get_wifi_info(ctx: Context) -> str:
+async def get_wifi_info(ctx: Context) -> str:
     """
     Get WiFi connection info using termux-wifi-connectioninfo.
     
@@ -213,17 +213,17 @@ def get_wifi_info(ctx: Context) -> str:
     Returns:
         WiFi info as JSON text
     """
-    ctx.info("Getting WiFi info")
+    await ctx.info("Getting WiFi info")
     exit_code, output = execute_command("termux-wifi-connectioninfo")
     
     if exit_code != 0:
-        ctx.error("Failed to get WiFi info")
+        await ctx.error("Failed to get WiFi info")
     
     return output
 
 
 @mcp.tool()
-def list_contacts(ctx: Context) -> str:
+async def list_contacts(ctx: Context) -> str:
     """
     List contacts using termux-contact-list.
     
@@ -232,17 +232,17 @@ def list_contacts(ctx: Context) -> str:
     Returns:
         Contacts as JSON text
     """
-    ctx.info("Listing contacts")
+    await ctx.info("Listing contacts")
     exit_code, output = execute_command("termux-contact-list")
     
     if exit_code != 0:
-        ctx.error("Failed to list contacts")
+        await ctx.error("Failed to list contacts")
     
     return output
 
 
 @mcp.tool()
-def get_device_info(ctx: Context) -> str:
+async def get_device_info(ctx: Context) -> str:
     """
     Get device info using termux-info.
     
@@ -252,11 +252,11 @@ def get_device_info(ctx: Context) -> str:
     Returns:
         Device info as text
     """
-    ctx.info("Getting device info")
+    await ctx.info("Getting device info")
     exit_code, output = execute_command("termux-info")
     
     if exit_code != 0:
-        ctx.error("Failed to get device info")
+        await ctx.error("Failed to get device info")
     
     return output
 
